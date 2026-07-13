@@ -14,5 +14,5 @@ require (
 	github.com/go-andiamo/splitter v1.2.5
 	github.com/kazeburo/followparser v0.2.10
 	github.com/mackerelio/golib v1.2.2
-	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
 )
