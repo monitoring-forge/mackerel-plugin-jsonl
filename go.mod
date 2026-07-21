@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/jessevdk/go-flags v1.6.1
-	github.com/montanaflynn/stats v0.9.0
+	github.com/montanaflynn/stats v0.10.0
 )
 
 require github.com/avast/retry-go/v4 v4.7.0 // indirect
