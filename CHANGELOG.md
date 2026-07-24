@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.7](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.6...v0.0.7) - 2026-07-24
+
+- go: bump github.com/montanaflynn/stats from 0.9.0 to 0.10.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/36
+- repo transfer, update deps, refactor go build options by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/38
+
 ## [v0.0.6](https://github.com/kazeburo/mackerel-plugin-jsonl/compare/v0.0.5...v0.0.6) - 2026-07-13
 
 - go: bump github.com/montanaflynn/stats from 0.8.2 to 0.9.0 in the dependencies group by @dependabot[bot] in https://github.com/kazeburo/mackerel-plugin-jsonl/pull/17
