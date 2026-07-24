@@ -8,7 +8,7 @@ JSON Lines 形式のログからメトリックを生成し、Mackerelに投稿�
 mkrを使うと楽です
 
 ```
-mkr plugin install --upgrade kazeburo/mackerel-plugin-jsonl
+mkr plugin install --upgrade monitoring-forge/mackerel-plugin-jsonl
 ```
 
 ## 基本的な使い方

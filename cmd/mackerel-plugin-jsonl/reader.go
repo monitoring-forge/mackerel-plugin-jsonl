@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kazeburo/followparser"
 	"github.com/mackerelio/golib/pluginutil"
+	"github.com/monitoring-forge/followparser"
 	"github.com/montanaflynn/stats"
 )
 
