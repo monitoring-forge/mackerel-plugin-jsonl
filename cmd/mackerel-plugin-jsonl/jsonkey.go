@@ -32,58 +32,78 @@ func parseJsonKeyWithFunc(s string) ([]string, []JsonKeyModifier, []JsonKeyIniti
 	modifiers := []JsonKeyModifier{}
 	initializers := []JsonKeyInitializer{}
 	for _, fn := range keys[1:] {
-		if fn == "tolower" {
-			modifiers = append(modifiers, func(s string) string {
-				return strings.ToLower(s)
-			})
-		} else if fn == "toupper" {
-			modifiers = append(modifiers, func(s string) string {
-				return strings.ToUpper(s)
-			})
-		} else if fn == "trimspace" {
-			modifiers = append(modifiers, func(s string) string {
-				return strings.TrimSpace(s)
-			})
-		} else if strings.HasPrefix(fn, "replace(") && strings.HasSuffix(fn, ")") {
-			inner := fn[8 : len(fn)-1]
-			// replace("pattern","repl")
-			s, _ := splitter.NewSplitter(',', splitter.DoubleQuotesBackSlashEscaped, splitter.SingleQuotesDoubleEscaped)
-			// must unescapeQuotes
-			parts, err := s.Split(inner, splitter.TrimSpaces, splitter.UnescapeQuotes, splitter.IgnoreEmpties)
-			if err != nil {
-				return []string{}, emptyJsonModifier, emptyJsonInitializer, err
-			}
-			if len(parts) != 2 {
-				return []string{}, emptyJsonModifier, emptyJsonInitializer, fmt.Errorf("invalid replace() format: %s", fn)
-			}
-			pattern := parts[0]
-			reg, err := regexp.Compile(pattern) // validate regexp
-			if err != nil {
-				return []string{}, emptyJsonModifier, emptyJsonInitializer, fmt.Errorf("invalid regexp: %w in %s", err, fn)
-			}
-			repl := parts[1]
-			modifiers = append(modifiers, func(s string) string {
-				return reg.ReplaceAllString(s, repl)
-			})
-		} else if strings.HasPrefix(fn, "have(") && strings.HasSuffix(fn, ")") {
-			// have("foo","bar","baz")
-			inner := fn[5 : len(fn)-1]
-			s, _ := splitter.NewSplitter(',', splitter.DoubleQuotesBackSlashEscaped, splitter.SingleQuotesDoubleEscaped)
-			parts, err := s.Split(inner, splitter.TrimSpaces, splitter.UnescapeQuotes, splitter.IgnoreEmpties)
-			if err != nil {
-				return []string{}, emptyJsonModifier, emptyJsonInitializer, err
-			}
-			initializers = append(initializers, func(m map[string]int) map[string]int {
-				for _, p := range parts {
-					m[p] = 0
-				}
-				return m
-			})
-		} else {
-			return []string{}, emptyJsonModifier, emptyJsonInitializer, fmt.Errorf("unknown modifier: %s", fn)
+		mod, init, err := parseModifier(fn)
+		if err != nil {
+			return []string{}, emptyJsonModifier, emptyJsonInitializer, err
+		}
+		if mod != nil {
+			modifiers = append(modifiers, mod)
+		}
+		if init != nil {
+			initializers = append(initializers, init)
 		}
 	}
 	return jsonKey, modifiers, initializers, nil
+}
+
+func parseModifier(fn string) (JsonKeyModifier, JsonKeyInitializer, error) {
+	switch fn {
+	case "tolower":
+		return func(s string) string { return strings.ToLower(s) }, nil, nil
+	case "toupper":
+		return func(s string) string { return strings.ToUpper(s) }, nil, nil
+	case "trimspace":
+		return func(s string) string { return strings.TrimSpace(s) }, nil, nil
+	}
+
+	if strings.HasPrefix(fn, "replace(") && strings.HasSuffix(fn, ")") {
+		mod, err := parseReplaceModifier(fn)
+		return mod, nil, err
+	}
+
+	if strings.HasPrefix(fn, "have(") && strings.HasSuffix(fn, ")") {
+		init, err := parseHaveInitializer(fn)
+		return nil, init, err
+	}
+
+	return nil, nil, fmt.Errorf("unknown modifier: %s", fn)
+}
+
+func parseReplaceModifier(fn string) (JsonKeyModifier, error) {
+	inner := fn[8 : len(fn)-1]
+	// replace("pattern","repl")
+	s, _ := splitter.NewSplitter(',', splitter.DoubleQuotesBackSlashEscaped, splitter.SingleQuotesDoubleEscaped)
+	// must unescapeQuotes
+	parts, err := s.Split(inner, splitter.TrimSpaces, splitter.UnescapeQuotes, splitter.IgnoreEmpties)
+	if err != nil {
+		return nil, err
+	}
+	if len(parts) != 2 {
+		return nil, fmt.Errorf("invalid replace() format: %s", fn)
+	}
+	pattern := parts[0]
+	reg, err := regexp.Compile(pattern) // validate regexp
+	if err != nil {
+		return nil, fmt.Errorf("invalid regexp: %w in %s", err, fn)
+	}
+	repl := parts[1]
+	return func(s string) string { return reg.ReplaceAllString(s, repl) }, nil
+}
+
+func parseHaveInitializer(fn string) (JsonKeyInitializer, error) {
+	// have("foo","bar","baz")
+	inner := fn[5 : len(fn)-1]
+	s, _ := splitter.NewSplitter(',', splitter.DoubleQuotesBackSlashEscaped, splitter.SingleQuotesDoubleEscaped)
+	parts, err := s.Split(inner, splitter.TrimSpaces, splitter.UnescapeQuotes, splitter.IgnoreEmpties)
+	if err != nil {
+		return nil, err
+	}
+	return func(m map[string]int) map[string]int {
+		for _, p := range parts {
+			m[p] = 0
+		}
+		return m
+	}, nil
 }
 
 // path.to."foo.baz".[0].key

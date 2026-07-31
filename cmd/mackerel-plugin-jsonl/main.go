@@ -12,6 +12,13 @@ import (
 var version string
 var commit string
 
+const (
+	OK = iota
+	WARNING
+	CRITICAL
+	UNKNOWN
+)
+
 type Opt struct {
 	Version             bool     `short:"v" long:"version" description:"Show version"`
 	Filter              string   `long:"filter" description:"filter string used before check pattern."`
@@ -37,8 +44,8 @@ func main() {
 }
 
 func _main() int {
-	opt := Opt{}
-	psr := flags.NewParser(&opt, flags.HelpFlag|flags.PassDoubleDash)
+	opt := &Opt{}
+	psr := flags.NewParser(opt, flags.HelpFlag|flags.PassDoubleDash)
 	_, err := psr.Parse()
 	if opt.Version {
 		if commit == "" {
@@ -52,19 +59,21 @@ func _main() int {
 			runtime.GOARCH,
 			runtime.Version(),
 			commit)
-		return 0
-	}
-	if err != nil {
+		return OK
+	} else if flags.WroteHelp(err) {
+		fmt.Fprintf(os.Stdout, "%v\n", err)
+		return OK
+	} else if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		return 1
+		return UNKNOWN
 	}
 
 	output, err := opt.run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
-		return 1
+		return CRITICAL
 	}
 	fmt.Print(output)
 
-	return 0
+	return OK
 }
