@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.8](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.7...v0.0.8) - 2026-07-31
+
+- add pr-agent and golangci, fix lint issue by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/40
+- ci: bump the dependencies group with 3 updates by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/39
+
 ## [v0.0.7](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.6...v0.0.7) - 2026-07-24
 
 - go: bump github.com/montanaflynn/stats from 0.9.0 to 0.10.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/36
