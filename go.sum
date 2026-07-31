@@ -1,7 +1,7 @@
 github.com/avast/retry-go/v4 v4.7.0 h1:yjDs35SlGvKwRNSykujfjdMxMhMQQM0TnIjJaHB+Zio=
 github.com/avast/retry-go/v4 v4.7.0/go.mod h1:ZMPDa3sY2bKgpLtap9JRUgk2yTAba7cgiFhqxY2Sg6Q=
-github.com/buger/jsonparser v1.2.0 h1:4EFcvK1kD4jyj6YqNK6skK6w+y7FHHBR+XBCtxwu/6g=
-github.com/buger/jsonparser v1.2.0/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
+github.com/buger/jsonparser v1.6.1 h1:I0phFv0PlbLHnM7TZAVjZ2MJ2/eWRTDyuO7GLR98IEs=
+github.com/buger/jsonparser v1.6.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/go-andiamo/splitter v1.2.5 h1:P3NovWMY2V14TJJSolXBvlOmGSZo3Uz+LtTl2bsV/eY=
@@ -10,10 +10,8 @@ github.com/jessevdk/go-flags v1.6.1 h1:Cvu5U8UGrLay1rZfv/zP7iLpSHGUZ/Ou68T0iX1bB
 github.com/jessevdk/go-flags v1.6.1/go.mod h1:Mk8T1hIAWpOiJiHa9rJASDK2UGWji0EuPGBnNLMooyc=
 github.com/mackerelio/golib v1.2.2 h1:fQfW1o2KvPyIsAH/7+M2J0gpf2jLu+NyYpDCN79zxW4=
 github.com/mackerelio/golib v1.2.2/go.mod h1:itcSOfrsT5XvkzflFPebT43RrliaKDz2T6YGYt3jclw=
-github.com/monitoring-forge/followparser v0.2.14 h1:2usujwzkWyUo1pXqucA459BP+pCvoVOz9Wj9LIwOXmE=
-github.com/monitoring-forge/followparser v0.2.14/go.mod h1:G9b5uEBoHXMa4GnEYPbQatAAQoq2h/4xFaKIyjOPHiA=
-github.com/montanaflynn/stats v0.10.0 h1:8GQhct8Qup299/6gFmW3K3xRvPrdpmdjVCWRsZ5bnes=
-github.com/montanaflynn/stats v0.10.0/go.mod h1:etXPPgVO6n31NxCd9KQUMvCM+ve0ruNzt6R8Bnaayow=
+github.com/monitoring-forge/followparser v0.2.15 h1:JiCtehe8NVd8BdfuLFzM9EDoVO3Ya4g3lunhJpnZk7k=
+github.com/monitoring-forge/followparser v0.2.15/go.mod h1:L3I8hiQxz9ahjz/pPxCVfjBYHTejwKeR7XaG9TYglyY=
 github.com/montanaflynn/stats v0.12.2 h1:qHR+IveGjTbO+lnrz1nKR+xpIcOtovJ5Xu0cst99h80=
 github.com/montanaflynn/stats v0.12.2/go.mod h1:etXPPgVO6n31NxCd9KQUMvCM+ve0ruNzt6R8Bnaayow=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
