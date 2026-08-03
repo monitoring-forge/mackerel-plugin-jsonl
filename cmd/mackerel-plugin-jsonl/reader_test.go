@@ -3,74 +3,46 @@ package main
 import (
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func buildOpt(keyNames, jsonKeys, aggregator []string) *Opt {
+	return &Opt{
+		KeyNames:   keyNames,
+		JsonKeys:   jsonKeys,
+		Aggregator: aggregator,
+	}
+}
 
 func TestOpt_check(t *testing.T) {
 	// 必須パラメータ不足
 	opt := &Opt{}
-	if err := opt.check(); err == nil {
-		t.Error("expected error for missing params")
-	}
+	assert.Error(t, opt.check(), "expected error for empty params")
 
 	// パラメータ数不一致
-	opt = &Opt{
-		KeyNames:   []string{"foo"},
-		JsonKeys:   []string{"foo"},
-		Aggregator: []string{"count", "group_by"},
-	}
-	if err := opt.check(); err == nil {
-		t.Error("expected error for param count mismatch")
-	}
+	opt = buildOpt([]string{"foo"}, []string{"foo"}, []string{"count", "group_by"})
+	assert.Error(t, opt.check(), "expected error for param count mismatch")
 
 	// 不正なaggregator
-	opt = &Opt{
-		KeyNames:   []string{"foo"},
-		JsonKeys:   []string{"foo"},
-		Aggregator: []string{"invalid"},
-	}
-	if err := opt.check(); err == nil {
-		t.Error("expected error for invalid aggregator")
-	}
+	opt = buildOpt([]string{"foo"}, []string{"foo"}, []string{"invalid"})
+	assert.Error(t, opt.check(), "expected error for invalid aggregator")
 
 	// countでmodifier指定時はエラー
-	opt = &Opt{
-		KeyNames:   []string{"foo"},
-		JsonKeys:   []string{"foo|tolower"},
-		Aggregator: []string{"count"},
-	}
-	if err := opt.check(); err == nil {
-		t.Error("expected error for modifier with count")
-	}
+	opt = buildOpt([]string{"foo"}, []string{"foo|tolower"}, []string{"count"})
+	assert.Error(t, opt.check(), "expected error for modifier with count")
 
 	// percentileでmodifier指定時はエラー
-	opt = &Opt{
-		KeyNames:   []string{"foo"},
-		JsonKeys:   []string{"foo|tolower"},
-		Aggregator: []string{"percentile"},
-	}
-	if err := opt.check(); err == nil {
-		t.Error("expected error for modifier with percentile")
-	}
+	opt = buildOpt([]string{"foo"}, []string{"foo|tolower"}, []string{"percentile"})
+	assert.Error(t, opt.check(), "expected error for modifier with percentile")
 
 	// group_byでmodifier指定時はOK
-	opt = &Opt{
-		KeyNames:   []string{"foo"},
-		JsonKeys:   []string{"foo|tolower"},
-		Aggregator: []string{"group_by"},
-	}
-	if err := opt.check(); err != nil {
-		t.Errorf("unexpected error for group_by with modifier: %v", err)
-	}
+	opt = buildOpt([]string{"foo"}, []string{"foo|tolower"}, []string{"group_by"})
+	assert.NoError(t, opt.check(), "unexpected error for group_by with modifier")
 
 	// 正常系
-	opt = &Opt{
-		KeyNames:   []string{"foo"},
-		JsonKeys:   []string{"foo"},
-		Aggregator: []string{"count"},
-	}
-	if err := opt.check(); err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
+	opt = buildOpt([]string{"foo"}, []string{"foo"}, []string{"count"})
+	assert.NoError(t, opt.check(), "unexpected error")
 }
 
 func TestOpt_calculatePerDuration(t *testing.T) {
