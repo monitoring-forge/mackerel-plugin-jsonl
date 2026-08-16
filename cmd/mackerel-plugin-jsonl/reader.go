@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mackerelio/golib/pluginutil"
-	"github.com/monitoring-forge/followparser"
 	"github.com/montanaflynn/stats"
 )
 
@@ -54,7 +52,7 @@ func (af *AggregatorFunction) appendData(b []byte) error {
 	return nil
 }
 
-func (p *Opt) check() error {
+func (p *Opt) validateAndSetup() error {
 	if err := p.validateOptions(); err != nil {
 		return err
 	}
@@ -128,31 +126,6 @@ func (p *Opt) setupPaths() {
 		paths = append(paths, af.jsonKey)
 	}
 	p.paths = paths
-}
-
-func (p *Opt) run() (string, error) {
-	err := p.check()
-	if err != nil {
-		return "", err
-	}
-	parser := NewParser(p)
-	fp := &followparser.Parser{
-		WorkDir:  pluginutil.PluginWorkDir(),
-		Callback: parser,
-		Silent:   !p.Verbose,
-	}
-	if p.LogArchiveDir != "" {
-		fp.ArchiveDir = p.LogArchiveDir
-	}
-	_, err = fp.Parse(
-		fmt.Sprintf("%s-mackerel-plugin-jsonl", p.Prefix),
-		p.LogFile,
-	)
-	if err != nil {
-		return "", err
-	}
-	output := p.output()
-	return output, nil
 }
 
 func (p *Opt) calculatePerDuration(i int) float64 {
