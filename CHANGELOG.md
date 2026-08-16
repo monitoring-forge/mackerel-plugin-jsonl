@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.0.9](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.8...v0.0.9) - 2026-08-16
+
+- テストの改善と依存関係の整理 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/42
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/44
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/45
+- ci: bump the-pr-agent/pr-agent from 0.41.1 to 0.42.0 in the dependencies group across 1 directory by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/46
+- use flagrun and simplify option validation by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/47
+
 ## [v0.0.8](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.7...v0.0.8) - 2026-07-31
 
 - add pr-agent and golangci, fix lint issue by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/40
