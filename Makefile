@@ -1,9 +1,8 @@
 VERSION=0.0.8
-GITCOMMIT?=$(shell git describe --dirty --always)
-LDFLAGS=-ldflags "-w -s -X main.version=${VERSION} -X main.commit=${GITCOMMIT}"
+LDFLAGS=-ldflags "-w -s -X main.version=${VERSION}"
 all: mackerel-plugin-jsonl
 
-.PHONY: mackerel-plugin-jsonl
+.PHONY: mackerel-plugin-jsonl linux check lint
 
 mackerel-plugin-jsonl: cmd/mackerel-plugin-jsonl/*.go
 	go build $(LDFLAGS) -o mackerel-plugin-jsonl ./cmd/mackerel-plugin-jsonl

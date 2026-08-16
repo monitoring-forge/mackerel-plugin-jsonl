@@ -3,14 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
-	"runtime"
 
-	"github.com/jessevdk/go-flags"
+	"github.com/mackerelio/golib/pluginutil"
+	"github.com/monitoring-forge/flagrun"
+	"github.com/monitoring-forge/followparser"
 )
 
 var version string
-var commit string
 
 const (
 	OK = iota
@@ -39,41 +38,31 @@ type Opt struct {
 	duration            float64
 }
 
-func main() {
-	os.Exit(_main())
+func (p *Opt) Run(_ []string) (any, int) {
+	err := p.validateAndSetup()
+	if err != nil {
+		return err, flagrun.UNKNOWN
+	}
+	parser := NewParser(p)
+	fp := &followparser.Parser{
+		WorkDir:  pluginutil.PluginWorkDir(),
+		Callback: parser,
+		Silent:   !p.Verbose,
+	}
+	if p.LogArchiveDir != "" {
+		fp.ArchiveDir = p.LogArchiveDir
+	}
+	_, err = fp.Parse(
+		fmt.Sprintf("%s-mackerel-plugin-jsonl", p.Prefix),
+		p.LogFile,
+	)
+	if err != nil {
+		return err, flagrun.CRITICAL
+	}
+	output := p.output()
+	return output, flagrun.OK
 }
 
-func _main() int {
-	opt := &Opt{}
-	psr := flags.NewParser(opt, flags.HelpFlag|flags.PassDoubleDash)
-	_, err := psr.Parse()
-	if opt.Version {
-		if commit == "" {
-			commit = "dev"
-		}
-		fmt.Printf(
-			"%s-%s\n%s/%s, %s, %s\n",
-			filepath.Base(os.Args[0]),
-			version,
-			runtime.GOOS,
-			runtime.GOARCH,
-			runtime.Version(),
-			commit)
-		return OK
-	} else if flags.WroteHelp(err) {
-		fmt.Fprintf(os.Stdout, "%v\n", err)
-		return OK
-	} else if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		return UNKNOWN
-	}
-
-	output, err := opt.run()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
-		return CRITICAL
-	}
-	fmt.Print(output)
-
-	return OK
+func main() {
+	os.Exit(flagrun.Go(&Opt{}, flagrun.Version(version)))
 }

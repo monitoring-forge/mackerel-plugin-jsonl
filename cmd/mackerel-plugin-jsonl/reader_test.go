@@ -15,34 +15,34 @@ func buildOpt(keyNames, jsonKeys, aggregator []string) *Opt {
 	}
 }
 
-func TestOpt_check(t *testing.T) {
+func TestOpt_validateAndSetup(t *testing.T) {
 	// 必須パラメータ不足
 	opt := &Opt{}
-	assert.Error(t, opt.check(), "expected error for empty params")
+	assert.Error(t, opt.validateAndSetup(), "expected error for empty params")
 
 	// パラメータ数不一致
 	opt = buildOpt([]string{"foo"}, []string{"foo"}, []string{"count", "group_by"})
-	assert.Error(t, opt.check(), "expected error for param count mismatch")
+	assert.Error(t, opt.validateAndSetup(), "expected error for param count mismatch")
 
 	// 不正なaggregator
 	opt = buildOpt([]string{"foo"}, []string{"foo"}, []string{"invalid"})
-	assert.Error(t, opt.check(), "expected error for invalid aggregator")
+	assert.Error(t, opt.validateAndSetup(), "expected error for invalid aggregator")
 
 	// countでmodifier指定時はエラー
 	opt = buildOpt([]string{"foo"}, []string{"foo|tolower"}, []string{"count"})
-	assert.Error(t, opt.check(), "expected error for modifier with count")
+	assert.Error(t, opt.validateAndSetup(), "expected error for modifier with count")
 
 	// percentileでmodifier指定時はエラー
 	opt = buildOpt([]string{"foo"}, []string{"foo|tolower"}, []string{"percentile"})
-	assert.Error(t, opt.check(), "expected error for modifier with percentile")
+	assert.Error(t, opt.validateAndSetup(), "expected error for modifier with percentile")
 
 	// group_byでmodifier指定時はOK
 	opt = buildOpt([]string{"foo"}, []string{"foo|tolower"}, []string{"group_by"})
-	assert.NoError(t, opt.check(), "unexpected error for group_by with modifier")
+	assert.NoError(t, opt.validateAndSetup(), "unexpected error for group_by with modifier")
 
 	// 正常系
 	opt = buildOpt([]string{"foo"}, []string{"foo"}, []string{"count"})
-	assert.NoError(t, opt.check(), "unexpected error")
+	assert.NoError(t, opt.validateAndSetup(), "unexpected error")
 }
 
 func TestOpt_calculatePerDuration(t *testing.T) {
