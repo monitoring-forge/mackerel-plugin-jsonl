@@ -42,7 +42,7 @@ func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
 
 func resetFollowParserStateFile(b testing.TB, dir, filename, prefix string) error {
 	b.Helper()
-	stateFilepath := fmt.Sprintf("%s/%s-mackerel-plugin-jsonl", dir, prefix)
+	stateFilepath := filepath.Join(dir, fmt.Sprintf("%s-mackerel-plugin-jsonl-%d", prefix, os.Geteuid()))
 	stateFile, err := os.Create(stateFilepath)
 	if err != nil {
 		return err
@@ -56,8 +56,8 @@ func resetFollowParserStateFile(b testing.TB, dir, filename, prefix string) erro
 	}
 	inode := stats.Sys().(*syscall.Stat_t).Ino
 	dev := stats.Sys().(*syscall.Stat_t).Dev
-
-	_, err = stateFile.WriteString(fmt.Sprintf(`{"Pos": %d, "Time": %f, "Inode": %d, "Dev": %d}`, 0, float64(time.Now().Unix()-10), inode, dev))
+	content := fmt.Sprintf(`{"pos": %d, "time": %f, "inode": %d, "dev": %d}`, 0, float64(time.Now().Unix()-10), inode, dev)
+	_, err = stateFile.WriteString(content)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func initParserForTest(b testing.TB, tmpDir string, numLines int) (*followparser
 }
 
 // generate 100k JSONL file and parse benchmark
-func BenchmarkMainParse(b *testing.B) {
+func BenchmarkMainParse_jsonl(b *testing.B) {
 	tmpDir := b.TempDir()
 	fp, opt := initParserForTest(b, tmpDir, 100_000)
 	posFile := fmt.Sprintf("%s-mackerel-plugin-jsonl", opt.Prefix)
@@ -111,39 +111,23 @@ func BenchmarkMainParse(b *testing.B) {
 			b.Fatalf("resetFollowParserStateFile failed: %v", err)
 		}
 		b.StartTimer()
-		_, err = fp.Parse(
+		parsed, err := fp.Parse(
 			posFile,
 			logFile,
 		)
 		if err != nil {
 			b.Fatalf("Parse failed: %v", err)
 		}
-	}
-}
-
-func TestMainParse(t *testing.T) {
-	tmpDir := t.TempDir()
-	fp, opt := initParserForTest(t, tmpDir, 1_000)
-
-	err := resetFollowParserStateFile(t, tmpDir, opt.LogFile, opt.Prefix)
-	if err != nil {
-		t.Fatalf("resetFollowParserStateFile failed: %v", err)
-	}
-
-	parsed, err := fp.Parse(
-		fmt.Sprintf("%s-mackerel-plugin-jsonl", opt.Prefix),
-		filepath.Join(tmpDir, opt.LogFile),
-	)
-	if err != nil {
-		t.Fatalf("Parse failed: %v", err)
-	}
-	if parsed == nil {
-		t.Fatalf("Parse returned nil parsed data")
-	}
-	if len(parsed) != 1 {
-		t.Fatalf("Parse returned unexpected number of parsed data: got %d, want 1", len(parsed))
-	}
-	if parsed[0].Rows != 1_000 {
-		t.Fatalf("Parse returned unexpected number of rows: got %d, want 1000", parsed[0].Rows)
+		b.StopTimer()
+		if parsed == nil {
+			b.Fatalf("Parse returned nil parsed data")
+		}
+		if len(parsed) != 1 {
+			b.Fatalf("Parse returned unexpected number of parsed data: got %d, want 1", len(parsed))
+		}
+		if parsed[0].Rows != 100_000 {
+			b.Fatalf("Parse returned unexpected number of rows: got %d, want 100_000", parsed[0].Rows)
+		}
+		b.StartTimer()
 	}
 }
