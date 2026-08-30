@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/monitoring-forge/ltsvparser"
 	"github.com/montanaflynn/stats"
 )
 
@@ -42,7 +43,7 @@ func (af *AggregatorFunction) appendData(b []byte) error {
 	case "group_by", "group_by_with_percentage":
 		af.groupBy[string(b)]++
 	case "percentile":
-		floatValue, err := bfloat64(b)
+		floatValue, err := ltsvparser.ParseFloat(b)
 		if err != nil {
 			return err
 		}
