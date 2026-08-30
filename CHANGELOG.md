@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.10](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.9...v0.0.10) - 2026-08-30
+
+- go: bump github.com/stretchr/testify from 1.11.1 to 1.12.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/49
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/48
+- feat: add benchmark workflow and JSONL file generation for performance testing by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/51
+- feat: update dependencies and refactor parser to use ltsvparser for f… by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/52
+
 ## [v0.0.9](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.8...v0.0.9) - 2026-08-16
 
 - テストの改善と依存関係の整理 by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/42
