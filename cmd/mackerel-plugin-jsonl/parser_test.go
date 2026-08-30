@@ -12,16 +12,6 @@ func TestNewParser(t *testing.T) {
 	}
 }
 
-func TestBfloat64(t *testing.T) {
-	f, err := bfloat64([]byte("123.45"))
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if f != 123.45 {
-		t.Errorf("expected 123.45, got %v", f)
-	}
-}
-
 func TestParser_Parse(t *testing.T) {
 	opt := &Opt{
 		aggregatorFunctions: []*AggregatorFunction{

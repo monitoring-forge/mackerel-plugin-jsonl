@@ -2,7 +2,7 @@ VERSION=0.0.9
 LDFLAGS=-ldflags "-w -s -X main.version=${VERSION}"
 all: mackerel-plugin-jsonl
 
-.PHONY: mackerel-plugin-jsonl linux check lint
+.PHONY: mackerel-plugin-jsonl linux check lint bench
 
 mackerel-plugin-jsonl: cmd/mackerel-plugin-jsonl/*.go
 	go build $(LDFLAGS) -o mackerel-plugin-jsonl ./cmd/mackerel-plugin-jsonl
@@ -17,3 +17,5 @@ check:
 lint:
 	golangci-lint run --timeout 5m ./...
 
+bench:
+	go test -bench BenchmarkMainParse -benchmem -count 10 -run '^$$' ./...

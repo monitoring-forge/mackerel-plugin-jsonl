@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"log"
-	"strconv"
-	"unsafe"
 
 	"github.com/buger/jsonparser"
 )
@@ -17,10 +15,6 @@ func NewParser(opt *Opt) *Parser {
 	return &Parser{
 		opt: opt,
 	}
-}
-
-func bfloat64(b []byte) (float64, error) {
-	return strconv.ParseFloat(unsafe.String(unsafe.SliceData(b), len(b)), 64)
 }
 
 func (p *Parser) jsonParsed(idx int, value []byte, vt jsonparser.ValueType, err error) {
