@@ -94,10 +94,9 @@ func initParserForTest(b testing.TB, tmpDir string, numLines int) (*followparser
 	return fp, opt
 }
 
-// generate 100k JSONL file and parse benchmark
-func BenchmarkMainParse_jsonl(b *testing.B) {
+func internalBenchmarkParse(b *testing.B, numLines int, doOutput bool) {
 	tmpDir := b.TempDir()
-	fp, opt := initParserForTest(b, tmpDir, 100_000)
+	fp, opt := initParserForTest(b, tmpDir, numLines)
 	posFile := fmt.Sprintf("%s-mackerel-plugin-jsonl", opt.Prefix)
 	logFile := filepath.Join(tmpDir, opt.LogFile)
 
@@ -117,6 +116,9 @@ func BenchmarkMainParse_jsonl(b *testing.B) {
 		if err != nil {
 			b.Fatalf("Parse failed: %v", err)
 		}
+		if doOutput {
+			_ = opt.output()
+		}
 		b.StopTimer()
 		if parsed == nil {
 			b.Fatalf("Parse returned nil parsed data")
@@ -124,9 +126,19 @@ func BenchmarkMainParse_jsonl(b *testing.B) {
 		if len(parsed) != 1 {
 			b.Fatalf("Parse returned unexpected number of parsed data: got %d, want 1", len(parsed))
 		}
-		if parsed[0].Rows != 100_000 {
-			b.Fatalf("Parse returned unexpected number of rows: got %d, want 100_000", parsed[0].Rows)
+		if parsed[0].Rows != numLines {
+			b.Fatalf("Parse returned unexpected number of rows: got %d, want %d", parsed[0].Rows, numLines)
 		}
 		b.StartTimer()
 	}
+}
+
+// generate 100k JSONL file and parse benchmark
+func BenchmarkMainParse_jsonl(b *testing.B) {
+	internalBenchmarkParse(b, 100_000, false)
+}
+
+// generate 100k JSONL file and parse benchmark
+func BenchmarkMainParse_parse_and_output(b *testing.B) {
+	internalBenchmarkParse(b, 100_000, true)
 }
