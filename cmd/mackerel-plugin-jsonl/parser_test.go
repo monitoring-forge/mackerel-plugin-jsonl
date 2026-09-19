@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/monitoring-forge/sampdo"
 )
 
 func TestParser_Parse(t *testing.T) {
@@ -20,7 +22,7 @@ func TestParser_Parse(t *testing.T) {
 			{
 				aggregator:  "percentile",
 				jsonKey:     []string{"ptime"},
-				percentiles: []float64{},
+				percentiles: sampdo.New(sampdo.WithInitialCapacity(1024)),
 			},
 		},
 		paths: [][]string{{"foo"}, {"status"}, {"ptime"}},
@@ -37,8 +39,19 @@ func TestParser_Parse(t *testing.T) {
 	if opt.aggregatorFunctions[1].groupBy["ok"] != 1 {
 		t.Errorf("expected groupBy ok 1, got %v", opt.aggregatorFunctions[1].groupBy["ok"])
 	}
-	if len(opt.aggregatorFunctions[2].percentiles) != 1 || opt.aggregatorFunctions[2].percentiles[0] != 100 {
-		t.Errorf("expected percentiles [100], got %v", opt.aggregatorFunctions[2].percentiles)
+	sorted, err := opt.aggregatorFunctions[2].percentiles.Sorted()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if sorted.Count() != 1 {
+		t.Errorf("expected percentiles count 1, got %v", sorted.Count())
+	}
+	maxPtime, err := sorted.Max()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if maxPtime != 100 {
+		t.Errorf("expected percentiles max 100, got %v", maxPtime)
 	}
 }
 
