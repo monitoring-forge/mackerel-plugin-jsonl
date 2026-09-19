@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand/v2"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -19,12 +20,12 @@ func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
 		return err
 	}
 	defer file.Close()
-
+	r := rand.New(rand.NewPCG(1, 2))
 	for i := range numLines {
 		line := fmt.Sprintf(`{"time": "%s", "status": "%d", "reqtime": "%f", "host": "%s", "req": "%s", "method": "%s", "size": "%d", "ua": "%s"}`,
 			time.Now().Format(time.RFC3339),
 			200+i%5,
-			float64(i)/100.0,
+			float64(r.IntN(500))/1000,
 			"10.20.30.40",
 			"GET /example/path HTTP/1.1",
 			"GET",
@@ -80,11 +81,6 @@ func initParserForTest(b testing.TB, tmpDir string, numLines int) (*followparser
 		b.Fatalf("validateAndSetup failed: %v", err)
 	}
 
-	err = generateJSONLFile(b, tmpDir, opt.LogFile, numLines)
-	if err != nil {
-		b.Fatalf("generateJSONLFile failed: %v", err)
-	}
-
 	fp := &followparser.Parser{
 		ArchiveDir: tmpDir,
 		WorkDir:    tmpDir,
@@ -94,28 +90,40 @@ func initParserForTest(b testing.TB, tmpDir string, numLines int) (*followparser
 	return fp, opt
 }
 
-// generate 100k JSONL file and parse benchmark
-func BenchmarkMainParse_jsonl(b *testing.B) {
+func internalBenchmarkParse(b *testing.B, numLines int, doOutput bool) {
 	tmpDir := b.TempDir()
-	fp, opt := initParserForTest(b, tmpDir, 100_000)
-	posFile := fmt.Sprintf("%s-mackerel-plugin-jsonl", opt.Prefix)
-	logFile := filepath.Join(tmpDir, opt.LogFile)
+	prefix := "json"
+	logFileName := "json.log"
+	err := generateJSONLFile(b, tmpDir, logFileName, numLines)
+	if err != nil {
+		b.Fatalf("generateJSONLFile failed: %v", err)
+	}
+
+	posFile := fmt.Sprintf("%s-mackerel-plugin-jsonl", prefix)
+	logFile := filepath.Join(tmpDir, logFileName)
 
 	b.ResetTimer()
 	b.ReportAllocs()
 	for b.Loop() {
 		b.StopTimer()
-		err := resetFollowParserStateFile(b, tmpDir, opt.LogFile, opt.Prefix)
+		err := resetFollowParserStateFile(b, tmpDir, logFileName, prefix)
 		if err != nil {
 			b.Fatalf("resetFollowParserStateFile failed: %v", err)
 		}
 		b.StartTimer()
+		fp, opt := initParserForTest(b, tmpDir, numLines)
 		parsed, err := fp.Parse(
 			posFile,
 			logFile,
 		)
 		if err != nil {
 			b.Fatalf("Parse failed: %v", err)
+		}
+		if doOutput {
+			output := opt.output()
+			if output == "" {
+				b.Fatalf("output is empty")
+			}
 		}
 		b.StopTimer()
 		if parsed == nil {
@@ -124,9 +132,19 @@ func BenchmarkMainParse_jsonl(b *testing.B) {
 		if len(parsed) != 1 {
 			b.Fatalf("Parse returned unexpected number of parsed data: got %d, want 1", len(parsed))
 		}
-		if parsed[0].Rows != 100_000 {
-			b.Fatalf("Parse returned unexpected number of rows: got %d, want 100_000", parsed[0].Rows)
+		if parsed[0].Rows != numLines {
+			b.Fatalf("Parse returned unexpected number of rows: got %d, want %d", parsed[0].Rows, numLines)
 		}
 		b.StartTimer()
 	}
+}
+
+// generate 100k JSONL file and parse benchmark
+func BenchmarkMainParse_jsonl(b *testing.B) {
+	internalBenchmarkParse(b, 100_000, false)
+}
+
+// generate 100k JSONL file and parse benchmark
+func BenchmarkMainParse_parse_and_output(b *testing.B) {
+	internalBenchmarkParse(b, 100_000, true)
 }

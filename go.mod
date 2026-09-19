@@ -21,6 +21,6 @@ require (
 	github.com/buger/jsonparser v1.6.1
 	github.com/go-andiamo/splitter v1.2.5
 	github.com/mackerelio/golib v1.2.2
-	github.com/monitoring-forge/flagrun v0.0.9
+	github.com/monitoring-forge/flagrun v0.0.10
 	golang.org/x/sys v0.48.0 // indirect
 )
