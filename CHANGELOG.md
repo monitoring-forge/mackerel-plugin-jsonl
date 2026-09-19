@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.12](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.11...v0.0.12) - 2026-09-19
+
+- go: bump golang.org/x/sys from 0.47.0 to 0.48.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/63
+- ci: bump Songmu/tagpr from 1.20.2 to 1.20.3 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/64
+- Feat/benchmark parse and ouput by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/66
+- replace percentile with sampdo for performance by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/67
+
 ## [v0.0.11](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.10...v0.0.11) - 2026-09-07
 
 - fix: update benchmark function and state file path for consistency by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/53
