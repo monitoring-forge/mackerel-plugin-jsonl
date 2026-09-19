@@ -97,6 +97,10 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 	default:
 		return nil, fmt.Errorf("unknown aggregator: %s", p.Aggregator[i])
 	}
+	var percentileStore *sampdo.Sampdo
+	if p.Aggregator[i] == "percentile" {
+		percentileStore = sampdo.New(sampdo.WithInitialCapacity(1024))
+	}
 
 	return &AggregatorFunction{
 		name:                p.KeyNames[i],
@@ -106,7 +110,7 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 		aggregator:          p.Aggregator[i],
 		count:               0,
 		groupBy:             map[string]int{},
-		percentiles:         sampdo.New(sampdo.WithInitialCapacity(1024)),
+		percentiles:         percentileStore,
 	}, nil
 }
 

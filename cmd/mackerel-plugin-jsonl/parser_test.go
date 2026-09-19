@@ -46,12 +46,12 @@ func TestParser_Parse(t *testing.T) {
 	if sorted.Count() != 1 {
 		t.Errorf("expected percentiles count 1, got %v", sorted.Count())
 	}
-	max, err := sorted.Max()
+	maxPtime, err := sorted.Max()
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if max != 100 {
-		t.Errorf("expected percentiles max 100, got %v", max)
+	if maxPtime != 100 {
+		t.Errorf("expected percentiles max 100, got %v", maxPtime)
 	}
 }
 
