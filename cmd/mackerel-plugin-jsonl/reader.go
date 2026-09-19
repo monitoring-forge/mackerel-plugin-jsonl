@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/monitoring-forge/ltsvparser"
-	"github.com/montanaflynn/stats"
+	"github.com/monitoring-forge/sampdo"
 )
 
 type JsonKeyModifier func(string) string
@@ -19,7 +19,7 @@ type AggregatorFunction struct {
 	aggregator          string
 	count               int
 	groupBy             map[string]int
-	percentiles         []float64
+	percentiles         *sampdo.Sampdo
 }
 
 func (af *AggregatorFunction) applyModifiers(s string) string {
@@ -47,7 +47,7 @@ func (af *AggregatorFunction) appendData(b []byte) error {
 		if err != nil {
 			return err
 		}
-		af.percentiles = append(af.percentiles, floatValue)
+		af.percentiles.Append(floatValue)
 	}
 
 	return nil
@@ -106,7 +106,7 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 		aggregator:          p.Aggregator[i],
 		count:               0,
 		groupBy:             map[string]int{},
-		percentiles:         []float64{},
+		percentiles:         sampdo.New(sampdo.WithInitialCapacity(1024)),
 	}, nil
 }
 
@@ -201,13 +201,17 @@ func (p *Opt) writeGroupByPercentageOutput(output *strings.Builder, af *Aggregat
 }
 
 func (p *Opt) writePercentileOutput(output *strings.Builder, af *AggregatorFunction, now uint64) {
-	if len(af.percentiles) == 0 {
+	sorted, err := af.percentiles.Sorted()
+	if err != nil {
 		return
 	}
-	mean, _ := stats.Mean(af.percentiles)
+	if sorted.Count() == 0 {
+		return
+	}
+	mean, _ := sorted.Mean()
 	fmt.Fprintf(output, "%s.%s.mean\t%f\t%d\n", p.Prefix, af.name, mean, now)
 	for name, ptile := range percentileTargets() {
-		value, err := stats.Percentile(af.percentiles, ptile)
+		value, err := sorted.Percentile(ptile)
 		if err != nil {
 			continue
 		}
