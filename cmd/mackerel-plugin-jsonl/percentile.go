@@ -34,12 +34,17 @@ func parseAggregator(s string) (string, []percentileTarget, error) {
 		return "", nil, fmt.Errorf("percentile() requires at least one statistic or percentile")
 	}
 	targets := make([]percentileTarget, 0, len(parts))
+	seen := make(map[string]struct{})
 	for _, part := range parts {
 		target, err := parsePercentileTarget(strings.TrimSpace(part))
 		if err != nil {
 			return "", nil, err
 		}
+		if _, exists := seen[target.name]; exists {
+			return "", nil, fmt.Errorf("duplicate percentile target: %s", target.name)
+		}
 		targets = append(targets, target)
+		seen[target.name] = struct{}{}
 	}
 	return "percentile", targets, nil
 }

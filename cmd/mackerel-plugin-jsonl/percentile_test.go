@@ -47,7 +47,7 @@ func TestPercentileOutput(t *testing.T) {
 func TestPercentileInvalidArguments(t *testing.T) {
 	for _, aggregator := range []string{
 		"percentile()", "percentile( )", `percentile("")`, "percentile(50,)", "percentile(,50)",
-		"percentile(50,,90)", "percentile(median)", "percentile(MAX)", "percentile(-0.1)",
+		"percentile(50,,90)", "percentile(50,50)", "percentile(median)", "percentile(MAX)", "percentile(-0.1)",
 		"percentile(100.1)", "percentile(NaN)", "percentile(Inf)", "percentile(-Inf)",
 		"percentile(1e999)", "percentile(50", "percentile50)", `percentile("50)`,
 		"percentile(50)extra", "unknown",
