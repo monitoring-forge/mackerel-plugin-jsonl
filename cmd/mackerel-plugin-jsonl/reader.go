@@ -20,6 +20,7 @@ type AggregatorFunction struct {
 	count               int
 	groupBy             map[string]int
 	percentiles         *sampdo.Sampdo
+	percentileTargets   []percentileTarget
 }
 
 func (af *AggregatorFunction) applyModifiers(s string) string {
@@ -87,7 +88,11 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 		return nil, fmt.Errorf("invalid json key: %w", err)
 	}
 
-	switch p.Aggregator[i] {
+	aggregator, targets, err := parseAggregator(p.Aggregator[i])
+	if err != nil {
+		return nil, err
+	}
+	switch aggregator {
 	case "count", "percentile":
 		if len(modifiers) > 0 || len(initializers) > 0 {
 			return nil, fmt.Errorf("modifiers and initializers are not supported for %s aggregator", p.Aggregator[i])
@@ -98,7 +103,7 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 		return nil, fmt.Errorf("unknown aggregator: %s", p.Aggregator[i])
 	}
 	var percentileStore *sampdo.Sampdo
-	if p.Aggregator[i] == "percentile" {
+	if aggregator == "percentile" {
 		percentileStore = sampdo.New(sampdo.WithInitialCapacity(1024))
 	}
 
@@ -107,7 +112,8 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 		jsonKey:             keys,
 		JsonKeyModifiers:    modifiers,
 		JsonKeyInitializers: initializers,
-		aggregator:          p.Aggregator[i],
+		aggregator:          aggregator,
+		percentileTargets:   targets,
 		count:               0,
 		groupBy:             map[string]int{},
 		percentiles:         percentileStore,
@@ -212,22 +218,12 @@ func (p *Opt) writePercentileOutput(output *strings.Builder, af *AggregatorFunct
 	if sorted.Count() == 0 {
 		return
 	}
-	mean, _ := sorted.Mean()
-	fmt.Fprintf(output, "%s.%s.mean\t%f\t%d\n", p.Prefix, af.name, mean, now)
-	for name, ptile := range percentileTargets() {
-		value, err := sorted.Percentile(ptile)
+	for _, target := range af.percentileTargets {
+		value, err := target.calculate(sorted)
 		if err != nil {
 			continue
 		}
-		fmt.Fprintf(output, "%s.%s.p%s\t%f\t%d\n", p.Prefix, af.name, name, value, now)
-	}
-}
-
-func percentileTargets() map[string]float64 {
-	return map[string]float64{
-		"90": 90.0,
-		"95": 95.0,
-		"99": 99.0,
+		fmt.Fprintf(output, "%s.%s.%s\t%f\t%d\n", p.Prefix, af.name, target.name, value, now)
 	}
 }
 
