@@ -1,5 +1,12 @@
 # Changelog
 
+## [v0.0.13](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.12...v0.0.13) - 2026-09-25
+
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/68
+- remove unsed param by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/70
+- update sampdo by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/71
+- Customize percentile output by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/72
+
 ## [v0.0.12](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.11...v0.0.12) - 2026-09-19
 
 - go: bump golang.org/x/sys from 0.47.0 to 0.48.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/63
