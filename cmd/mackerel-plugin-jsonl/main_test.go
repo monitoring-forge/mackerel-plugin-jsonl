@@ -66,7 +66,7 @@ func resetFollowParserStateFile(b testing.TB, dir, filename, prefix string) erro
 	return nil
 }
 
-func initParserForTest(b testing.TB, tmpDir string, numLines int) (*followparser.Parser, *Opt) {
+func initParserForTest(b testing.TB, tmpDir string) (*followparser.Parser, *Opt) {
 	b.Helper()
 	// mackerel-plugin-jsonl --prefix json --log-file json.log -k total.count -j time -a count -k status -j 'status|replace("^(?:([1235])\d{2}|(4)(?:[0-8]\d|9[0-8]))$","${1}${2}xx")|have("2xx","3xx","4xx","499","5xx")' -a group_by_with_percentage -k latency -j reqtime -a percentile
 	opt := &Opt{
@@ -111,7 +111,7 @@ func internalBenchmarkParse(b *testing.B, numLines int, doOutput bool) {
 			b.Fatalf("resetFollowParserStateFile failed: %v", err)
 		}
 		b.StartTimer()
-		fp, opt := initParserForTest(b, tmpDir, numLines)
+		fp, opt := initParserForTest(b, tmpDir)
 		parsed, err := fp.Parse(
 			posFile,
 			logFile,
