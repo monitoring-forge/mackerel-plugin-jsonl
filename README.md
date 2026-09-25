@@ -42,10 +42,32 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 	- 例: `json.status.2xx 24769.733333    1760281381`
 - `group_by_with_percentage` : group_byの各値ごとの割合（%）も出力します。
 	- 例: `json.status_percentage.5xx      23.139667       1760281381`
-- `percentile` : 指定した数値キーのパーセンタイル（mean, p90, p95, p99）を出力します。
+- `percentile` : 指定した数値キーの平均値とパーセンタイル（mean, p90, p95, p99）を出力します。
 	- 例: `json.latency.p95        0.030000        1760281381`
 
 複数のaggregatorを同時に指定することで、複数のメトリクスを一度に出力できます。
+
+### percentile の出力項目をカスタマイズする
+
+`percentile(...)` の引数に、出力したい統計値・パーセンタイルをカンマ区切りで指定できます。計算には sampdo を使用します。
+
+```sh
+./mackerel-plugin-jsonl \
+  --key-name latency \
+  --json-key reqtime \
+  --aggregator 'percentile("max","min","mean","50","70",90,99.9)' \
+  --log-file /path/to/your.log \
+  --prefix json
+```
+
+- 統計値は `max`（最大値）、`min`（最小値）、`mean`（平均値）を指定できます。
+- パーセンタイルは `0` 以上 `100` 以下の数値で、小数も指定できます。
+- 引数は引用符あり・なしのどちらでも指定できます。
+- 統計値の出力名はそのまま `max`、`min`、`mean` です。数値は先頭に `p` を付け、小数点を `_` に変換します（`99.9` → `p99_9`）。
+
+上記の例では、`json.latency.max`、`json.latency.min`、`json.latency.mean`、`json.latency.p50`、`json.latency.p70`、`json.latency.p90`、`json.latency.p99_9` のみを指定順に出力します。
+
+従来の `--aggregator percentile` は引き続き `mean`、`p90`、`p95`、`p99` を出力します。`percentile()` のような空の指定、未対応の統計名、範囲外の数値はエラーになります。対象データがない場合は出力しません。
 
 ---
 

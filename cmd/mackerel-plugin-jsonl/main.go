@@ -17,7 +17,7 @@ type Opt struct {
 	Ignore              string   `long:"ignore" description:"ignore string used before check pattern."`
 	KeyNames            []string `short:"k" long:"key-name" required:"true" description:"Key name for json path"`
 	JsonKeys            []string `short:"j" long:"json-key" required:"true" description:"JSON key and modifier functions to extract log message."`
-	Aggregator          []string `short:"a" long:"aggregator" required:"true" description:"Aggregator type. valid values are count, group_by, group_by_with_percentage, percentile. count is default." choice:"count" choice:"group_by" choice:"group_by_with_percentage" choice:"percentile"` // nolint:staticcheck
+	Aggregator          []string `short:"a" long:"aggregator" required:"true" description:"Aggregator type: count, group_by, group_by_with_percentage, percentile, or percentile(max,min,mean,50,99.9)."` // nolint:staticcheck
 	SkipUntilBracket    bool     `long:"skip-until-json" description:"skip reading until first { for json log with plain text header"`
 	Prefix              string   `long:"prefix" required:"true" description:"Metric key prefix"`
 	PerSec              bool     `long:"per-second" description:"calculate per-seconds count. default per minute count"`
