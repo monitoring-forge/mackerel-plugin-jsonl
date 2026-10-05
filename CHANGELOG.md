@@ -1,5 +1,11 @@
 # Changelog
 
+## [v0.0.14](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.13...v0.0.14) - 2026-10-05
+
+- ci: bump Songmu/tagpr from 1.20.3 to 1.21.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/74
+- go: bump github.com/monitoring-forge/ltsvparser from 0.2.8 to 0.2.9 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/73
+- feat: add flatPaths optimization for JSON parsing by @kazeburo in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/76
+
 ## [v0.0.13](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.12...v0.0.13) - 2026-09-25
 
 - Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/68
