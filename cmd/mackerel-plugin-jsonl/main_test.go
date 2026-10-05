@@ -90,7 +90,7 @@ func initParserForTest(b testing.TB, tmpDir string) (*followparser.Parser, *Opt)
 	return fp, opt
 }
 
-func internalBenchmarkParse(b *testing.B, numLines int, doOutput bool) {
+func internalBenchmarkParse(b *testing.B, numLines int, doOutput, useEachKey bool) {
 	tmpDir := b.TempDir()
 	prefix := "json"
 	logFileName := "json.log"
@@ -112,6 +112,9 @@ func internalBenchmarkParse(b *testing.B, numLines int, doOutput bool) {
 		}
 		b.StartTimer()
 		fp, opt := initParserForTest(b, tmpDir)
+		if useEachKey {
+			opt.flatPaths = false
+		}
 		parsed, err := fp.Parse(
 			posFile,
 			logFile,
@@ -141,10 +144,14 @@ func internalBenchmarkParse(b *testing.B, numLines int, doOutput bool) {
 
 // generate 100k JSONL file and parse benchmark
 func BenchmarkMainParse_jsonl(b *testing.B) {
-	internalBenchmarkParse(b, 100_000, false)
+	internalBenchmarkParse(b, 100_000, false, false)
+}
+
+func BenchmarkMainParse_jsonl_eachkey(b *testing.B) {
+	internalBenchmarkParse(b, 100_000, false, true)
 }
 
 // generate 100k JSONL file and parse benchmark
 func BenchmarkMainParse_parse_and_output(b *testing.B) {
-	internalBenchmarkParse(b, 100_000, true)
+	internalBenchmarkParse(b, 100_000, true, false)
 }

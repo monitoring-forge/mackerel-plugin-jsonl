@@ -28,6 +28,7 @@ type Opt struct {
 	filterByte          *[]byte
 	ignoreByte          *[]byte
 	paths               [][]string
+	flatPaths           bool
 	duration            float64
 }
 
