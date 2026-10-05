@@ -48,7 +48,10 @@ func (af *AggregatorFunction) appendData(b []byte) error {
 		if err != nil {
 			return err
 		}
-		af.percentiles.Append(floatValue)
+		err = af.percentiles.Append(floatValue)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -133,8 +136,13 @@ func (p *Opt) setupFilterBytes() {
 
 func (p *Opt) setupPaths() {
 	paths := make([][]string, 0, len(p.aggregatorFunctions))
+	// parseFlat uses a uint64 to track paths already found in each line.
+	p.flatPaths = len(p.aggregatorFunctions) > 0 && len(p.aggregatorFunctions) <= 64
 	for _, af := range p.aggregatorFunctions {
 		paths = append(paths, af.jsonKey)
+		if len(af.jsonKey) != 1 {
+			p.flatPaths = false
+		}
 	}
 	p.paths = paths
 }
