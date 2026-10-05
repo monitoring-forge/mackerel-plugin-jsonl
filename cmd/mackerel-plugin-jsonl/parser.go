@@ -68,7 +68,7 @@ func (opt *Opt) parseFlat(b []byte) {
 		}
 		return nil
 	})
-	if err != nil && err != errFlatPathsFound {
+	if err != nil && err != errFlatPathsFound { //nolint:errorlint
 		// Keep EachKey's behavior for non-object and malformed input. Skip values
 		// already delivered by ObjectEach so aggregators never count them twice.
 		jsonparser.EachKey(b, func(i int, value []byte, valueType jsonparser.ValueType, err error) {

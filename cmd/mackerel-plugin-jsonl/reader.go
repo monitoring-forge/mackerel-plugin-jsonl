@@ -48,7 +48,10 @@ func (af *AggregatorFunction) appendData(b []byte) error {
 		if err != nil {
 			return err
 		}
-		af.percentiles.Append(floatValue)
+		err = af.percentiles.Append(floatValue)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

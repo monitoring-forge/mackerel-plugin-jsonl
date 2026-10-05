@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/monitoring-forge/followparser"
+	"github.com/stretchr/testify/require"
 )
 
 func generateJSONLFile(b testing.TB, dir, filename string, numLines int) error {
@@ -107,9 +108,7 @@ func internalBenchmarkParse(b *testing.B, numLines int, doOutput, useEachKey boo
 	for b.Loop() {
 		b.StopTimer()
 		err := resetFollowParserStateFile(b, tmpDir, logFileName, prefix)
-		if err != nil {
-			b.Fatalf("resetFollowParserStateFile failed: %v", err)
-		}
+		require.NoError(b, err, "resetFollowParserStateFile failed")
 		b.StartTimer()
 		fp, opt := initParserForTest(b, tmpDir)
 		if useEachKey {
@@ -119,25 +118,15 @@ func internalBenchmarkParse(b *testing.B, numLines int, doOutput, useEachKey boo
 			posFile,
 			logFile,
 		)
-		if err != nil {
-			b.Fatalf("Parse failed: %v", err)
-		}
+		require.NoError(b, err, "Parse failed")
 		if doOutput {
 			output := opt.output()
-			if output == "" {
-				b.Fatalf("output is empty")
-			}
+			require.NotEmpty(b, output, "output is empty")
 		}
 		b.StopTimer()
-		if parsed == nil {
-			b.Fatalf("Parse returned nil parsed data")
-		}
-		if len(parsed) != 1 {
-			b.Fatalf("Parse returned unexpected number of parsed data: got %d, want 1", len(parsed))
-		}
-		if parsed[0].Rows != numLines {
-			b.Fatalf("Parse returned unexpected number of rows: got %d, want %d", parsed[0].Rows, numLines)
-		}
+		require.NotNil(b, parsed, "parsed data is nil")
+		require.Equal(b, 1, len(parsed), "unexpected number of parsed data")
+		require.Equal(b, numLines, parsed[0].Rows, "unexpected number of rows in parsed data")
 		b.StartTimer()
 	}
 }

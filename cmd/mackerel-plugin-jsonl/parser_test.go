@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/monitoring-forge/sampdo"
+	"github.com/stretchr/testify/require"
 )
 
 func TestParseFlatMatchesEachKey(t *testing.T) {
@@ -64,15 +65,12 @@ func TestParseFlatMatchesEachKey(t *testing.T) {
 			}
 
 			fast := newOpt()
-			if !fast.flatPaths {
-				t.Fatal("expected flat path optimization")
-			}
+			require.True(t, fast.flatPaths, "expected flat path optimization")
 			reference := newOpt()
 			reference.flatPaths = false
 			for _, opt := range []*Opt{fast, reference} {
-				if err := opt.Parse([]byte(tc.line)); err != nil {
-					t.Fatal(err)
-				}
+				err := opt.Parse([]byte(tc.line))
+				require.NoError(t, err, "Parse failed")
 			}
 			for i := range tc.paths {
 				if !reflect.DeepEqual(fast.aggregatorFunctions[i].groupBy, reference.aggregatorFunctions[i].groupBy) {
