@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.0.15](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.14...v0.0.15) - 2026-10-10
+
+- Sync files with `monitoring-forge/github-common` by @monitoring-forge-files-sync-action[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/77
+- ci: bump Songmu/tagpr from 1.21.0 to 1.21.1 in the tagpr group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/79
+
 ## [v0.0.14](https://github.com/monitoring-forge/mackerel-plugin-jsonl/compare/v0.0.13...v0.0.14) - 2026-10-05
 
 - ci: bump Songmu/tagpr from 1.20.3 to 1.21.0 in the dependencies group by @dependabot[bot] in https://github.com/monitoring-forge/mackerel-plugin-jsonl/pull/74
