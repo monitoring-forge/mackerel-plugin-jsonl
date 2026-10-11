@@ -113,7 +113,7 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 ```
 --json-key "user.name|trimspace|tolower"
 --json-key "message|replace('error','warn')"
---json-key "status|tolower|have(2xx,3xx,4xx,5xx)"
+--json-key "status|tolower|have('2xx','3xx','4xx','5xx')"
 ```
 
 ## mackerel-plugin-jsonlによるメトリクス例(1)
