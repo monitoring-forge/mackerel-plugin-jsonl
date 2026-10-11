@@ -24,6 +24,23 @@ mkr plugin install --upgrade monitoring-forge/mackerel-plugin-jsonl
 
 複数のキーや集計方法を指定する場合は、`--key-name`, `--json-key`, `--aggregator` を同じ数だけ指定してください。
 
+## コマンドオプション
+
+| オプション | 短縮形 | 説明 |
+| --- | --- | --- |
+| `--version` | `-v` | バージョン情報を表示します。 |
+| `--key-name` | `-k` | メトリック名に使用するキー名を指定します（必須）。複数指定できます。 |
+| `--json-key` | `-j` | ログから値を抽出するJSONキーを指定します（必須）。パイプ区切りで変換関数を指定できます。複数指定できます。 |
+| `--aggregator` | `-a` | 集計方法を指定します（必須）。`count`、`group_by`、`group_by_with_percentage`、`percentile`、`percentile(...)` が指定可能です。複数指定できます。 |
+| `--log-file` | `-l` | 読み込むJSON Lines形式のログファイルパスを指定します（必須）。 |
+| `--prefix` | | Mackerelメトリック名のプレフィックスを指定します（必須）。 |
+| `--filter` | | ログ行をフィルタする文字列を指定します。指定した文字列を含む行のみ対象となります。 |
+| `--ignore` | | ログ行を除外する文字列を指定します。指定した文字列を含む行は無視されます。 |
+| `--skip-until-json` | | JSONの `{` まで読み飛ばします。プレーンテキストのヘッダーが含まれるJSONログで利用します。 |
+| `--per-second` | | 1秒あたりの値で出力します。未指定時は1分あたりの値で出力されます。 |
+| `--log-archive-dir` | | ログのローテート済みアーカイブディレクトリを指定します。 |
+| `--verbose` | | 詳細なログを標準エラーに出力します。 |
+
 ## mackerel-agent.conf 設定例
 
 ```ini
@@ -77,18 +94,26 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 
 例: `foo.bar|tolower|replace('a','b')|trimspace`
 
-利用可能な関数:
+### 利用可能な変換関数
 
-- `tolower` : 小文字化
-- `toupper` : 大文字化
-- `trimspace` : 前後の空白を除去
-- `replace('pattern','repl')` : 正規表現で置換
-- `have('key1','key2','key3')` : 初期状態のキーのリスト。集計した値がない時に `0` で結果を生成できます
+| 関数 | 説明 | 利用できる aggregator |
+| --- | --- | --- |
+| `tolower` | 値を小文字に変換します。 | `group_by`, `group_by_with_percentage` |
+| `toupper` | 値を大文字に変換します。 | `group_by`, `group_by_with_percentage` |
+| `trimspace` | 値の前後の空白を除去します。 | `group_by`, `group_by_with_percentage` |
+| `replace('pattern','repl')` | 正規表現で値を置換します。 | `group_by`, `group_by_with_percentage` |
+| `have('key1','key2','key3')` | 集計結果に指定したキーをあらかじめ `0` で追加します。集計した値がない場合でもメトリックを出力できます。 | `group_by`, `group_by_with_percentage` |
+
+### 注意事項
+
+- 変換関数・初期化関数は `group_by` および `group_by_with_percentage` のみで利用できます。
+- `count` や `percentile` では、変換関数・初期化関数は指定できません。
 
 例:
 ```
 --json-key "user.name|trimspace|tolower"
 --json-key "message|replace('error','warn')"
+--json-key "status|tolower|have(2xx,3xx,4xx,5xx)"
 ```
 
 ## mackerel-plugin-jsonlによるメトリクス例(1)
