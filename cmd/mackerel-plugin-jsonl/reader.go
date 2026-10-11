@@ -10,17 +10,19 @@ import (
 )
 
 type JsonKeyModifier func(string) string
+type JsonKeyNumericModifier func(float64) float64
 type JsonKeyInitializer func(map[string]int) map[string]int
 type AggregatorFunction struct {
-	name                string
-	jsonKey             []string
-	JsonKeyModifiers    []JsonKeyModifier
-	JsonKeyInitializers []JsonKeyInitializer
-	aggregator          string
-	count               int
-	groupBy             map[string]int
-	percentiles         *sampdo.Sampdo
-	percentileTargets   []percentileTarget
+	name                    string
+	jsonKey                 []string
+	JsonKeyModifiers        []JsonKeyModifier
+	JsonKeyNumericModifiers []JsonKeyNumericModifier
+	JsonKeyInitializers     []JsonKeyInitializer
+	aggregator              string
+	count                   int
+	groupBy                 map[string]int
+	percentiles             *sampdo.Sampdo
+	percentileTargets       []percentileTarget
 }
 
 func (af *AggregatorFunction) applyModifiers(s string) string {
@@ -28,6 +30,13 @@ func (af *AggregatorFunction) applyModifiers(s string) string {
 		s = mod(s)
 	}
 	return s
+}
+
+func (af *AggregatorFunction) applyNumericModifiers(n float64) float64 {
+	for _, mod := range af.JsonKeyNumericModifiers {
+		n = mod(n)
+	}
+	return n
 }
 
 func (af *AggregatorFunction) applyInitializers(m map[string]int) map[string]int {
@@ -86,7 +95,7 @@ func (p *Opt) validateOptions() error {
 }
 
 func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
-	keys, modifiers, initializers, err := parseJsonKeyWithFunc(p.JsonKeys[i])
+	keys, modifiers, numericModifiers, initializers, err := parseJsonKeyWithFunc(p.JsonKeys[i])
 	if err != nil {
 		return nil, fmt.Errorf("invalid json key: %w", err)
 	}
@@ -111,15 +120,16 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 	}
 
 	return &AggregatorFunction{
-		name:                p.KeyNames[i],
-		jsonKey:             keys,
-		JsonKeyModifiers:    modifiers,
-		JsonKeyInitializers: initializers,
-		aggregator:          aggregator,
-		percentileTargets:   targets,
-		count:               0,
-		groupBy:             map[string]int{},
-		percentiles:         percentileStore,
+		name:                    p.KeyNames[i],
+		jsonKey:                 keys,
+		JsonKeyModifiers:        modifiers,
+		JsonKeyNumericModifiers: numericModifiers,
+		JsonKeyInitializers:     initializers,
+		aggregator:              aggregator,
+		percentileTargets:       targets,
+		count:                   0,
+		groupBy:                 map[string]int{},
+		percentiles:             percentileStore,
 	}, nil
 }
 
@@ -147,11 +157,11 @@ func (p *Opt) setupPaths() {
 	p.paths = paths
 }
 
-func (p *Opt) calculatePerDuration(i int) float64 {
+func (p *Opt) calculatePerDuration(i float64) float64 {
 	if p.PerSec {
-		return float64(i) / p.duration
+		return i / p.duration
 	}
-	return (float64(i) / p.duration) * 60
+	return (i / p.duration) * 60
 }
 
 func (p *Opt) output() string {
@@ -179,7 +189,8 @@ func (p *Opt) writeCountOutput(output *strings.Builder, af *AggregatorFunction, 
 		// avoid division by zero
 		return
 	}
-	fmt.Fprintf(output, "%s.%s\t%f\t%d\n", p.Prefix, af.name, p.calculatePerDuration(af.count), now)
+	count := af.applyNumericModifiers(float64(af.count))
+	fmt.Fprintf(output, "%s.%s\t%f\t%d\n", p.Prefix, af.name, p.calculatePerDuration(count), now)
 }
 
 func (p *Opt) writeGroupByOutput(output *strings.Builder, af *AggregatorFunction, now uint64) {
@@ -191,7 +202,8 @@ func (p *Opt) writeGroupByOutput(output *strings.Builder, af *AggregatorFunction
 	total := 0
 	for k, v := range af.groupBy {
 		safeKey := sanitizeMetricKey(k)
-		fmt.Fprintf(output, "%s.%s.%s\t%f\t%d\n", p.Prefix, af.name, safeKey, p.calculatePerDuration(v), now)
+		f := af.applyNumericModifiers(float64(v))
+		fmt.Fprintf(output, "%s.%s.%s\t%f\t%d\n", p.Prefix, af.name, safeKey, p.calculatePerDuration(f), now)
 		total += v
 	}
 	if af.aggregator == "group_by_with_percentage" && total > 0 {
@@ -231,6 +243,7 @@ func (p *Opt) writePercentileOutput(output *strings.Builder, af *AggregatorFunct
 		if err != nil {
 			continue
 		}
+		value = af.applyNumericModifiers(value)
 		fmt.Fprintf(output, "%s.%s.%s\t%f\t%d\n", p.Prefix, af.name, target.name, value, now)
 	}
 }

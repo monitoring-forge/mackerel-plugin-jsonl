@@ -6,7 +6,7 @@ import (
 )
 
 func TestParseJsonKeyWithFunc_basic(t *testing.T) {
-	key, mods, inits, err := parseJsonKeyWithFunc("foo.bar")
+	key, mods, nummods, inits, err := parseJsonKeyWithFunc("foo.bar")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -19,10 +19,13 @@ func TestParseJsonKeyWithFunc_basic(t *testing.T) {
 	if len(mods) != 0 {
 		t.Errorf("expected no modifiers, got %d", len(mods))
 	}
+	if len(nummods) != 0 {
+		t.Errorf("expected no numeric modifiers, got %d", len(nummods))
+	}
 }
 
 func TestParseJsonKeyWithFunc_modifiers(t *testing.T) {
-	key, mods, inits, err := parseJsonKeyWithFunc("foo|tolower|toupper|trimspace|have('a','b','c')")
+	key, mods, nummods, inits, err := parseJsonKeyWithFunc("foo|tolower|toupper|trimspace|have('a','b','c')|multiply(2)")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -34,6 +37,9 @@ func TestParseJsonKeyWithFunc_modifiers(t *testing.T) {
 	}
 	if len(mods) != 3 {
 		t.Errorf("expected 3 modifiers, got %d", len(mods))
+	}
+	if len(nummods) != 1 {
+		t.Errorf("expected 1 numeric modifier, got %d", len(nummods))
 	}
 	// test modifier chain
 	v := " FOO "
@@ -51,11 +57,19 @@ func TestParseJsonKeyWithFunc_modifiers(t *testing.T) {
 			t.Errorf("initializer failed, key %s not found", k)
 		}
 	}
+	// test numeric modifier
+	n := 3.0
+	for _, m := range nummods {
+		n = m(n)
+	}
+	if n != 6.0 {
+		t.Errorf("numeric modifier failed, got %v", n)
+	}
 }
 
 func TestParseJsonKeyWithFunc_replace(t *testing.T) {
 	{
-		key, mods, inits, err := parseJsonKeyWithFunc("foo|replace('o','a')")
+		key, mods, nummods, inits, err := parseJsonKeyWithFunc("foo|replace('o','a')")
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -67,6 +81,9 @@ func TestParseJsonKeyWithFunc_replace(t *testing.T) {
 		}
 		if len(mods) != 1 {
 			t.Errorf("expected 1 modifier, got %d", len(mods))
+		}
+		if len(nummods) != 0 {
+			t.Errorf("expected no numeric modifiers, got %d", len(nummods))
 		}
 		v := mods[0]("foo")
 		if v != "faa" {
@@ -74,7 +91,7 @@ func TestParseJsonKeyWithFunc_replace(t *testing.T) {
 		}
 	}
 	{
-		key, mods, inits, err := parseJsonKeyWithFunc(`foo|replace('[o|f]','a"')`)
+		key, mods, nummods, inits, err := parseJsonKeyWithFunc(`foo|replace('[o|f]','a"')`)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
@@ -86,6 +103,9 @@ func TestParseJsonKeyWithFunc_replace(t *testing.T) {
 		}
 		if len(mods) != 1 {
 			t.Errorf("expected 1 modifier, got %d", len(mods))
+		}
+		if len(nummods) != 0 {
+			t.Errorf("expected no numeric modifiers, got %d", len(nummods))
 		}
 		v := mods[0]("foo")
 		if v != `a"a"a"` {
@@ -95,22 +115,23 @@ func TestParseJsonKeyWithFunc_replace(t *testing.T) {
 }
 
 func TestParseJsonKeyWithFunc_errors(t *testing.T) {
-	_, _, _, err := parseJsonKeyWithFunc("")
-	t.Logf("err for empty key: %#v", err)
-	if err == nil {
-		t.Error("expected error for empty key")
+	testCases := []struct {
+		input string
+	}{
+		{""},
+		{"foo|replace('o')"},
+		{"foo|replace('(','a')"},
+		{"foo|multiply()"},
+		{"foo|multiply(a)"},
+		{"foo|multiply(1,2)"},
+		{"foo|unknownmod"},
 	}
-	_, _, _, err = parseJsonKeyWithFunc("foo|replace('o')")
-	if err == nil {
-		t.Error("expected error for invalid replace format")
-	}
-	_, _, _, err = parseJsonKeyWithFunc("foo|replace('(','a')")
-	if err == nil {
-		t.Error("expected error for invalid regexp")
-	}
-	_, _, _, err = parseJsonKeyWithFunc("foo|unknownmod")
-	if err == nil {
-		t.Error("expected error for unknown modifier")
+	for _, tc := range testCases {
+		_, _, _, _, err := parseJsonKeyWithFunc(tc.input)
+		t.Logf("err for input %q: %#v", tc.input, err)
+		if err == nil {
+			t.Errorf("expected error for input %q", tc.input)
+		}
 	}
 }
 
@@ -160,7 +181,7 @@ func TestParseJsonKeyWithFunc_cases(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.input, func(t *testing.T) {
-			key, funcs, _, err := parseJsonKeyWithFunc(tc.input)
+			key, funcs, nummods, _, err := parseJsonKeyWithFunc(tc.input)
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -169,6 +190,9 @@ func TestParseJsonKeyWithFunc_cases(t *testing.T) {
 			}
 			if len(funcs) != tc.funcs {
 				t.Errorf("expected %d modifier, got %d", tc.funcs, len(funcs))
+			}
+			if len(nummods) != 0 {
+				t.Errorf("expected no numeric modifiers, got %d", len(nummods))
 			}
 		})
 	}
