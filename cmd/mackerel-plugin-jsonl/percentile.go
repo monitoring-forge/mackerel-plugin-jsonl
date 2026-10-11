@@ -17,7 +17,7 @@ type percentileTarget struct {
 
 func parseAggregator(s string) (string, []percentileTarget, error) {
 	switch s {
-	case "count", "group_by", "group_by_with_percentage":
+	case "count", "sum", "group_by", "group_by_with_percentage":
 		return s, nil, nil
 	case "percentile":
 		return s, []percentileTarget{{name: "mean"}, {name: "p90", value: 90}, {name: "p95", value: 95}, {name: "p99", value: 99}}, nil

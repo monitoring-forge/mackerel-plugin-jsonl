@@ -20,6 +20,7 @@ type AggregatorFunction struct {
 	JsonKeyInitializers     []JsonKeyInitializer
 	aggregator              string
 	count                   int
+	sum                     float64
 	groupBy                 map[string]int
 	percentiles             *sampdo.Sampdo
 	percentileTargets       []percentileTarget
@@ -52,10 +53,14 @@ func (af *AggregatorFunction) appendData(b []byte) error {
 		af.count++
 	case "group_by", "group_by_with_percentage":
 		af.groupBy[string(b)]++
-	case "percentile":
+	case "percentile", "sum":
 		floatValue, err := ltsvparser.ParseFloat(b)
 		if err != nil {
 			return err
+		}
+		if af.aggregator == "sum" {
+			af.sum += floatValue
+			return nil
 		}
 		err = af.percentiles.Append(floatValue)
 		if err != nil {
@@ -105,7 +110,7 @@ func (p *Opt) buildAggregatorFunction(i int) (*AggregatorFunction, error) {
 		return nil, err
 	}
 	switch aggregator {
-	case "count", "percentile":
+	case "count", "sum", "percentile":
 		if len(modifiers) > 0 || len(initializers) > 0 {
 			return nil, fmt.Errorf("modifiers and initializers are not supported for %s aggregator", p.Aggregator[i])
 		}
@@ -177,6 +182,8 @@ func (p *Opt) writeAggregatorOutput(output *strings.Builder, af *AggregatorFunct
 	switch af.aggregator {
 	case "count":
 		p.writeCountOutput(output, af, now)
+	case "sum":
+		p.writeSumOutput(output, af, now)
 	case "group_by", "group_by_with_percentage":
 		p.writeGroupByOutput(output, af, now)
 	case "percentile":
@@ -191,6 +198,15 @@ func (p *Opt) writeCountOutput(output *strings.Builder, af *AggregatorFunction, 
 	}
 	count := af.applyNumericModifiers(float64(af.count))
 	fmt.Fprintf(output, "%s.%s\t%f\t%d\n", p.Prefix, af.name, p.calculatePerDuration(count), now)
+}
+
+func (p *Opt) writeSumOutput(output *strings.Builder, af *AggregatorFunction, now uint64) {
+	if p.duration == 0 {
+		// avoid division by zero
+		return
+	}
+	sum := af.applyNumericModifiers(af.sum)
+	fmt.Fprintf(output, "%s.%s\t%f\t%d\n", p.Prefix, af.name, p.calculatePerDuration(sum), now)
 }
 
 func (p *Opt) writeGroupByOutput(output *strings.Builder, af *AggregatorFunction, now uint64) {
