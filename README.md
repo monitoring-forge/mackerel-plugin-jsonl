@@ -103,11 +103,14 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 | `trimspace` | 値の前後の空白を除去します。 | `group_by`, `group_by_with_percentage` |
 | `replace('pattern','repl')` | 正規表現で値を置換します。 | `group_by`, `group_by_with_percentage` |
 | `have('key1','key2','key3')` | 集計結果に指定したキーをあらかじめ `0` で追加します。集計した値がない場合でもメトリックを出力できます。 | `group_by`, `group_by_with_percentage` |
+| `multiply(factor)` | 数値に指定した係数を掛けます。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
 
 ### 注意事項
 
-- 変換関数・初期化関数は `group_by` および `group_by_with_percentage` のみで利用できます。
-- `count` や `percentile` では、変換関数・初期化関数は指定できません。
+- 文字列変換関数（`tolower`、`toupper`、`trimspace`、`replace`）と数値変換関数（`multiply`）は、すべての aggregator で利用できます。
+- ただし、`have()` は `group_by` および `group_by_with_percentage` のみで利用できます。
+- `count` や `percentile` で `have()` は指定できません。
+- `multiply()` は `count` では件数、`group_by`/`group_by_with_percentage` では各値の件数、`percentile` では各統計値に係数を掛けます。
 
 例:
 ```
