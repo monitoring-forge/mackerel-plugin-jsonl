@@ -2,3 +2,4 @@
 /demo/json.log
 /demo/tmp
 *.pprof
+/demo/bench*
