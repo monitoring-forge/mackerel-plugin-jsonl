@@ -98,10 +98,10 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 
 | 関数 | 説明 | 利用できる aggregator |
 | --- | --- | --- |
-| `tolower` | 値を小文字に変換します。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
-| `toupper` | 値を大文字に変換します。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
-| `trimspace` | 値の前後の空白を除去します。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
-| `replace('pattern','repl')` | 正規表現で値を置換します。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
+| `tolower` | 値を小文字に変換します。 | `group_by`, `group_by_with_percentage` |
+| `toupper` | 値を大文字に変換します。 | `group_by`, `group_by_with_percentage` |
+| `trimspace` | 値の前後の空白を除去します。 | `group_by`, `group_by_with_percentage` |
+| `replace('pattern','repl')` | 正規表現で値を置換します。 | `group_by`, `group_by_with_percentage` |
 | `have('key1','key2','key3')` | 集計結果に指定したキーをあらかじめ `0` で追加します。集計した値がない場合でもメトリックを出力できます。 | `group_by`, `group_by_with_percentage` |
 | `multiply(factor)` | 数値に指定した係数を掛けます。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
 
