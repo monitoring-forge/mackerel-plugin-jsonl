@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -132,7 +133,8 @@ func parseMultiplyModifier(fn string) (JsonKeyNumericModifier, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid multiply factor: %w in %s", err, fn)
 	}
-	if factor != factor || factor-factor != 0 {
+	// check if factor is finite or not NaN
+	if math.IsNaN(factor) || math.IsInf(factor, 0) {
 		return nil, fmt.Errorf("multiply factor must be finite: %s", fn)
 	}
 	return func(n float64) float64 { return n * factor }, nil
