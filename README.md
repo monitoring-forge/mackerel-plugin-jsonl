@@ -31,7 +31,7 @@ mkr plugin install --upgrade monitoring-forge/mackerel-plugin-jsonl
 | `--version` | `-v` | バージョン情報を表示します。 |
 | `--key-name` | `-k` | メトリック名に使用するキー名を指定します（必須）。複数指定できます。 |
 | `--json-key` | `-j` | ログから値を抽出するJSONキーを指定します（必須）。パイプ区切りで変換関数を指定できます。複数指定できます。 |
-| `--aggregator` | `-a` | 集計方法を指定します（必須）。`count`、`group_by`、`group_by_with_percentage`、`percentile`、`percentile(...)` が指定可能です。複数指定できます。 |
+| `--aggregator` | `-a` | 集計方法を指定します（必須）。`count`、`sum`、`group_by`、`group_by_with_percentage`、`percentile`、`percentile(...)` が指定可能です。複数指定できます。 |
 | `--log-file` | `-l` | 読み込むJSON Lines形式のログファイルパスを指定します（必須）。 |
 | `--prefix` | | Mackerelメトリック名のプレフィックスを指定します（必須）。 |
 | `--filter` | | ログ行をフィルタする文字列を指定します。指定した文字列を含む行のみ対象となります。 |
@@ -55,6 +55,8 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 
 - `count` : 対象となるキーが存在する行をカウントします
 	- 例: `json.total.count        80000.000000    1760281381`
+- `sum` : 指定した数値キーを合計します
+  - 例: `json.bytes_sent.sum        75000.000000    1760281381`
 - `group_by` : 指定したキーの値ごとに件数を集計します。
 	- 例: `json.status.2xx 24769.733333    1760281381`
 - `group_by_with_percentage` : group_byの各値ごとの割合（%）も出力します。
@@ -103,13 +105,12 @@ command = "/path/to/mackerel-plugin-jsonl --key-name count --json-key foo.bar --
 | `trimspace` | 値の前後の空白を除去します。 | `group_by`, `group_by_with_percentage` |
 | `replace('pattern','repl')` | 正規表現で値を置換します。 | `group_by`, `group_by_with_percentage` |
 | `have('key1','key2','key3')` | 集計結果に指定したキーをあらかじめ `0` で追加します。集計した値がない場合でもメトリックを出力できます。 | `group_by`, `group_by_with_percentage` |
-| `multiply(factor)` | 数値に指定した係数を掛けます。 | `count`, `group_by`, `group_by_with_percentage`, `percentile` |
+| `multiply(factor)` | 数値に指定した係数を掛けます。 | `count`, `sum`, `group_by`, `group_by_with_percentage`, `percentile` |
 
 ### 注意事項
 
-- 文字列変換関数（`tolower`、`toupper`、`trimspace`、`replace`）と数値変換関数（`multiply`）は、すべての aggregator で利用できます。
-- ただし、`have()` は `group_by` および `group_by_with_percentage` のみで利用できます。
-- `count` や `percentile` で `have()` は指定できません。
+- 数値変換関数（`multiply`）は、すべての aggregator で利用できます。
+- 文字列変換関数（`tolower`、`toupper`、`trimspace`、`replace`）と `have()` は `group_by` および `group_by_with_percentage` のみで利用できます。
 - `multiply()` は `count` では件数、`group_by`/`group_by_with_percentage` では各値の件数、`percentile` では各統計値に係数を掛けます。
 
 例:

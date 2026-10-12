@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
@@ -119,6 +120,11 @@ func TestParser_Parse(t *testing.T) {
 				count:      0,
 			},
 			{
+				aggregator: "sum",
+				jsonKey:    []string{"ptime"},
+				sum:        0,
+			},
+			{
 				aggregator: "group_by",
 				jsonKey:    []string{"status"},
 				groupBy:    map[string]int{},
@@ -129,33 +135,41 @@ func TestParser_Parse(t *testing.T) {
 				percentiles: sampdo.New(sampdo.WithInitialCapacity(1024)),
 			},
 		},
-		paths: [][]string{{"foo"}, {"status"}, {"ptime"}},
+		paths: [][]string{{"foo"}, {"ptime"}, {"status"}, {"ptime"}},
 	}
 
-	json := []byte(`{"foo": 1, "status": "ok", "ptime": 100}`)
-	err := opt.Parse(json)
+	statuses := []string{"ok", "ng", "unknown"}
+	for i := range 100 {
+		status := statuses[i%len(statuses)]
+
+		jsonStr := fmt.Sprintf(`{"foo": 1, "status": "%s", "ptime": %d}`, status, 100+i)
+		err := opt.Parse([]byte(jsonStr))
+		if err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	}
+	if opt.aggregatorFunctions[0].count != 100 {
+		t.Errorf("expected count 100, got %v", opt.aggregatorFunctions[0].count)
+	}
+	if opt.aggregatorFunctions[1].sum != 14950 {
+		t.Errorf("expected sum 14950, got %v", opt.aggregatorFunctions[1].sum)
+	}
+	if opt.aggregatorFunctions[2].groupBy["ok"] != 34 {
+		t.Errorf("expected groupBy ok 34, got %v", opt.aggregatorFunctions[2].groupBy["ok"])
+	}
+	sorted, err := opt.aggregatorFunctions[3].percentiles.Sorted()
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if opt.aggregatorFunctions[0].count != 1 {
-		t.Errorf("expected count 1, got %v", opt.aggregatorFunctions[0].count)
-	}
-	if opt.aggregatorFunctions[1].groupBy["ok"] != 1 {
-		t.Errorf("expected groupBy ok 1, got %v", opt.aggregatorFunctions[1].groupBy["ok"])
-	}
-	sorted, err := opt.aggregatorFunctions[2].percentiles.Sorted()
-	if err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if sorted.Count() != 1 {
-		t.Errorf("expected percentiles count 1, got %v", sorted.Count())
+	if sorted.Count() != 100 {
+		t.Errorf("expected percentiles count 100, got %v", sorted.Count())
 	}
 	maxPtime, err := sorted.Max()
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if maxPtime != 100 {
-		t.Errorf("expected percentiles max 100, got %v", maxPtime)
+	if maxPtime != 199 {
+		t.Errorf("expected percentiles max 199, got %v", maxPtime)
 	}
 }
 
