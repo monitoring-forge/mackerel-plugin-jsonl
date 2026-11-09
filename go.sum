@@ -2,6 +2,8 @@ github.com/avast/retry-go/v4 v4.7.0 h1:yjDs35SlGvKwRNSykujfjdMxMhMQQM0TnIjJaHB+Z
 github.com/avast/retry-go/v4 v4.7.0/go.mod h1:ZMPDa3sY2bKgpLtap9JRUgk2yTAba7cgiFhqxY2Sg6Q=
 github.com/buger/jsonparser v1.6.1 h1:I0phFv0PlbLHnM7TZAVjZ2MJ2/eWRTDyuO7GLR98IEs=
 github.com/buger/jsonparser v1.6.1/go.mod h1:6RYKKt7H4d4+iWqouImQ9R2FZql3VbhNgx27UK13J/0=
+github.com/dustin/go-humanize v1.1.0 h1:dbKTrvD0klcbBV/h4AWJdMuZogJACoMlvWIWZ5b2xWg=
+github.com/dustin/go-humanize v1.1.0/go.mod h1:hc1CvRkJMsgxqjmjMQF3QNRAZBwY8AXBAzKYoSX9sFI=
 github.com/go-andiamo/splitter v1.2.5 h1:P3NovWMY2V14TJJSolXBvlOmGSZo3Uz+LtTl2bsV/eY=
 github.com/go-andiamo/splitter v1.2.5/go.mod h1:8WHU24t9hcMKU5FXDQb1hysSEC/GPuivIp0uKY1J8gw=
 github.com/go-test/deep v1.1.1 h1:0r/53hagsehfO4bzD2Pgr/+RgHqhmf+k1Bpse2cTu1U=
@@ -12,14 +14,14 @@ github.com/mackerelio/checkers v0.2.1 h1:vRXzAT+CEyaLjSrHVxKUBjyWq1kfo8QcI8ZoSKZ
 github.com/mackerelio/checkers v0.2.1/go.mod h1:CW3k/5bvHhxDrfKgWvMvNH0R51zco141ZVxlI7o/KAc=
 github.com/mackerelio/golib v1.2.2 h1:fQfW1o2KvPyIsAH/7+M2J0gpf2jLu+NyYpDCN79zxW4=
 github.com/mackerelio/golib v1.2.2/go.mod h1:itcSOfrsT5XvkzflFPebT43RrliaKDz2T6YGYt3jclw=
-github.com/monitoring-forge/flagrun v0.0.10 h1:KybhBetKlDxuIBj/rilKQWE60fynVzReKl+KLBcWCuc=
-github.com/monitoring-forge/flagrun v0.0.10/go.mod h1:hxpSc4cgzDMi6lj40T97GNO/PglgM5FW79fRGdzexBY=
+github.com/monitoring-forge/flagrun v0.0.11 h1:zSjvW6LBBj3GrUe66bYP+WI3hLSU/PERg2ia9DCDEe0=
+github.com/monitoring-forge/flagrun v0.0.11/go.mod h1:3qfrE7RtHTdoQc1YVc2SyGimpRkyLFVLe6dfwpU8uoQ=
 github.com/monitoring-forge/followparser v0.2.16 h1:8mAozo1/uxHNmaR2PScCpZa+9MpujJtrK/3LyR1q7bk=
 github.com/monitoring-forge/followparser v0.2.16/go.mod h1:3ZKlSyd3PrB9HzCVC7oycfaA9p3t0O2tUEBLCmhfTUc=
 github.com/monitoring-forge/ltsvparser v0.2.9 h1:wvIM67xmZBDNIcLAR0J05+rAt3lia2eQ8jtW2ci8Hvs=
 github.com/monitoring-forge/ltsvparser v0.2.9/go.mod h1:kbNExT98jYMhQE5wphmq2avnuxEorZL/CfDKIUuyimE=
-github.com/monitoring-forge/saferio v0.0.3 h1:1i3va3QQ9QPunwsgekDzC8RV91KT1Xcb++Z0Dnl9zFY=
-github.com/monitoring-forge/saferio v0.0.3/go.mod h1:1o6nyDJ4isee9VH3eUx5uw4C7LEgPFsq7M3tO+VMyvM=
+github.com/monitoring-forge/saferio v0.0.4 h1:6xhBurszUxIS2H2Viz/2C8JpNzIWJmiJsUYdbmHBOJM=
+github.com/monitoring-forge/saferio v0.0.4/go.mod h1:GKYSFstUv5mxaA4YPeXhidoUIizE/9peARc8NtZVI/U=
 github.com/monitoring-forge/sampdo v0.0.4 h1:zdowfYjKsTfluKOh/pgyzqal8oy7w7vW6R0WxJfP/3I=
 github.com/monitoring-forge/sampdo v0.0.4/go.mod h1:HrklVUhA6bhegmUoZnH9X3Kovpe7/KE5x5TSr0Sdtew=
 github.com/stretchr/testify v1.12.1 h1:EuwCh5fleGS7H32xRwO3wRGT7DxrDhLAT6FF8MpWDWE=
